@@ -55,7 +55,7 @@ Pour chaque point de donnée mensuel, la chaîne suivante est appliquée séquen
 
 | Donnée | Source | Automatisation | Statut |
 |---|---|---|---|
-| Prix à la pompe (TTC) | [INSEE / BDM — bdm.insee.fr](https://bdm.insee.fr) | `make fetch-prices` | ✅ Officiel (Avr 2026) — GPL estimé |
+| Prix à la pompe (TTC) | [INSEE / BDM](https://bdm.insee.fr) + [Flux quotidien](https://data.economie.gouv.fr) | `make fetch-prices` | ✅ Officiel (Avr 2026) — GPL estimé |
 | Cours du Brent (USD/bbl) | [API FRED — DCOILBRENTEU](https://fred.stlouisfed.org/series/DCOILBRENTEU) | `make fetch-market` | ✅ Snapshoté (Avr 2026) |
 | Taux USD/EUR | [API FRED — DEXUSEU](https://fred.stlouisfed.org/series/DEXUSEU) | `make fetch-market` | ✅ Snapshoté (Avr 2026) |
 | TICPE (barèmes annuels) | [DGFIP / PLF annuels](https://www.impots.gouv.fr) | Manuel (`data/FiscalRules.js`) | ✅ Sourcés manuellement |
@@ -124,7 +124,10 @@ make fetch-market
 
 ```bash
 make fetch-prices
-# → Télécharge le CSV depuis data.economie.gouv.fr
+# Passe 1 : INSEE/BDM SDMX → prix officiels 2000 → mois N-1
+# Passe 2 : Flux quotidien data.economie.gouv.fr → moyenne nationale
+#           pour chaque mois récent (6 derniers mois) non encore
+#           publié par l'INSEE (décalage habituel d'1 mois)
 # → Génère data/sources/InseeFuelHistory.YYYY-MM-DD.js
 # → Met à jour automatiquement le pointeur data/InseeFuelHistory.js
 ```

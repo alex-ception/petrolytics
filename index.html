@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse Carburants France</title>
+    
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="./src/style.css">
+</head>
+<body data-theme="dark">
+    <div class="dashboard">
+        <header>
+            <div class="logo-section">
+                <h1>Analyse Carburants</h1>
+            </div>
+            <div class="controls">
+                <button class="control-btn" id="themeToggle">Thème</button>
+                <button class="control-btn" id="scaleToggle">Mode %</button>
+                <div id="fuelTypeSwitcher" style="display:inline-flex; gap:0.5rem; margin-left:1rem;">
+                    <button class="control-btn active" data-type="Gazole">Gazole</button>
+                    <button class="control-btn" data-type="SP95">SP95</button>
+                    <button class="control-btn" data-type="SP98">SP98</button>
+                    <button class="control-btn" data-type="GPL">GPL</button>
+                </div>
+                <div id="retailerSwitcher" style="display:inline-flex; gap:0.5rem; margin-left:1rem; border-left:1px solid #334155; padding-left:1rem;">
+                    <button class="control-btn active" data-retailer="National">🌍 National</button>
+                    <button class="control-btn" data-retailer="Supermarket">🛒 Supermarché</button>
+                    <button class="control-btn" data-retailer="Premium">⛽ Marque</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="stats-row">
+            <div class="stat-card" id="currentPriceCard">
+                <div class="label">Prix au litre</div>
+                <div class="value">--€</div>
+            </div>
+            <div class="stat-card" id="taxShareCard">
+                <div class="label">Part des taxes</div>
+                <div class="value">--%</div>
+            </div>
+            <div class="stat-card" id="marginTrendCard">
+                <div class="label">Marge nette (R+D)</div>
+                <div class="value">--€</div>
+            </div>
+        </div>
+
+        <div class="chart-section-full">
+            <div class="chart-main-row">
+                <div class="chart-container" id="mainChart"></div>
+                <div class="historical-sidebar" id="eventSidebar">
+                    <h3>Historique & Lois ⚖️</h3>
+                    <div id="eventList">
+                        <!-- Dynamic content via main.js -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filters-panel" id="componentFilters">
+                <button class="filter-chip active" data-comp="Total">Prix TTC</button>
+                <button class="filter-chip active" data-comp="Oil">Pétrole</button>
+                <button class="filter-chip active" data-comp="TICPE">TICPE</button>
+                <button class="filter-chip active" data-comp="CEE">CEE</button>
+                <button class="filter-chip active" data-comp="VAT">TVA</button>
+                <button class="filter-chip active" data-comp="Refining">Raffinage</button>
+                <button class="filter-chip active" data-comp="Distro">Vente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Apache ECharts and Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script type="module" src="./src/main.js"></script>
+</body>
+</html>
