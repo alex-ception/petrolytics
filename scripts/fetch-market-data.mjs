@@ -23,7 +23,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const OUTPUT_PATH = join(ROOT, 'public', 'market_snapshot.json');
 
-const API_KEY = process.env.FRED_API_KEY || 'REMOVED_KEY';
+const API_KEY = process.env.FRED_API_KEY;
 const FRED_BASE = 'https://api.stlouisfed.org/fred/series/observations';
 const START_DATE = '2000-01-01';
 

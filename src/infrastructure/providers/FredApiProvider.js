@@ -3,7 +3,7 @@
  * Encapsule les appels vers la Federal Reserve via le proxy Vite.
  */
 export class FredApiProvider {
-    static API_KEY = "REMOVED_KEY";
+    static API_KEY = ""; // Not committed for security reasons
 
     /**
      * @param {string} seriesId - DCOILBRENTEU (Brent) or DEXUSEU (EUR/USD)
