@@ -13,9 +13,14 @@ async function generateDataSet() {
     const markets = await FuelDataRepository.fetchMarkets();
     const fuelRegistry = getSupportedFuels(); // Le registre pilote la boucle !
 
-    for (let year = startYear; year <= endYear; year++) {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    for (let year = startYear; year <= currentYear; year++) {
         for (let m = 0; m < 12; m++) {
-            if (year === 2026 && m > 3) break; // Avril 2026
+            // Arrêt dynamique au mois en cours
+            if (year === currentYear && m > currentMonth) break;
 
             const dataPoint = { date: `${monthsDict[m]} ${year}` };
 
