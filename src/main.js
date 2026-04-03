@@ -77,7 +77,7 @@ function updateChart() {
             xAxis: ev.label || ev.date,
             label: {
                 formatter: ev.markerLabel,
-                distance: ev.offsetLeft ? [-60, 10] : (i % 2 === 0 ? [0, 10] : [0, 50])
+                offset: ev.offsetLeft ? [-60, 10] : (i % 2 === 0 ? [0, 10] : [0, 50])
             }
         }))
     };
@@ -112,7 +112,7 @@ function updateChart() {
         xAxis: { type: 'category', boundaryGap: false, data: fuelData.map(d => d.label) },
         yAxis: { type: 'value', min: 0, max: isPercentageMode ? 100 : null },
         series: [
-            { name: 'Pétrole (Brut)',         type: 'line', stack: 'base', itemStyle: { color: isDark ? '#64748b' : '#4b5563' }, areaStyle: { opacity: 1 }, showSymbol: false, data: fuelData.map(d => d.brut) },
+            { name: 'Pétrole (Brut)',         type: 'line', stack: 'base', itemStyle: { color: isDark ? '#64748b' : '#4b5563' }, areaStyle: { opacity: 1 }, showSymbol: false, data: fuelData.map(d => d.brut), markLine: markerStyle },
             { name: 'Taxe État (TICPE)',       type: 'line', stack: 'base', itemStyle: { color: '#2563eb' },                     areaStyle: { opacity: 1 }, showSymbol: false, data: fuelData.map(d => d.ticpe) },
             { name: 'Taxe Écolo (CEE)',        type: 'line', stack: 'base', itemStyle: { color: '#0ea5e9' },                     areaStyle: { opacity: 1 }, showSymbol: false, data: fuelData.map(d => d.cee) },
             { name: 'TVA',                     type: 'line', stack: 'base', itemStyle: { color: '#ef4444' },                     areaStyle: { opacity: 1 }, showSymbol: false, data: fuelData.map(d => d.tva) },
@@ -126,7 +126,6 @@ function updateChart() {
             name: 'Prix à la Pompe (TTC)', type: 'line', symbol: 'none',
             itemStyle: { color: isDark ? '#ffffff' : '#000000' },
             lineStyle: { width: 3 },
-            markLine: markerStyle,
             data: fuelData.map(d => d.total_ttc)
         });
     }
@@ -173,4 +172,4 @@ document.getElementById('retailerSwitcher').addEventListener('click', (e) => {
 
 window.addEventListener('resize', () => { if (chart) chart.resize(); });
 initChart();
-lucide.createIcons();
+
