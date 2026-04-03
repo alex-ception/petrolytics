@@ -2,7 +2,7 @@ import { FredApiProvider } from '../../infrastructure/providers/FredApiProvider.
 import { BRENT_MILESTONES } from '../../../data/BrentFallbackHistory.js';
 
 const FRED_TIMEOUT_MS = 3000;
-const SNAPSHOT_PATH = '/market_snapshot.json';
+const SNAPSHOT_PATH = `${import.meta.env.BASE_URL}market_snapshot.json`.replace('//', '/');
 
 export class MarketPriceRepository {
 
