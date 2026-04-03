@@ -29,16 +29,17 @@ jobs:
       - name: Fetch official prices from DGEC
         run: node scripts/fetch-dgec-prices.mjs
 
-      - name: Commit updated snapshots to repository
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "[bot] chore: auto-update daily prices snapshot"
-          file_pattern: 'data/sources/*.js data/InseeFuelHistory.js'
-
       - name: Fetch market data from FRED
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: node scripts/fetch-market-data.mjs
+
+      - name: Commit updated snapshots to repository
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "[bot] chore: auto-update daily data snapshots (DGEC & FRED)"
+          file_pattern: 'data/sources/*.js data/InseeFuelHistory.js public/market_snapshot.json'
+
 
       - name: Build
         run: npm run build
