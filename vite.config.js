@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/petrolytics/',
+  base: '/',
   build: {
     outDir: 'dist',
     target: 'esnext'
