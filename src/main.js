@@ -136,7 +136,15 @@ function updateChart() {
     }
 
     chart.setOption(option, true);
-    updateStats(fuelData[fuelData.length - 1]);
+    
+    // Les encarts statistiques du haut DOIVENT toujours rester en mode Euros (€), même quand le graphique passe en "%"
+    const latestRaw = data[data.length - 1][currentFuelType];
+    const latestReal = {
+        ...latestRaw,
+        total_ttc: latestRaw.total_ttc + profile.priceDelta,
+        marge_distribution: Math.max(0.01, latestRaw.marge_distribution + profile.marginDelta)
+    };
+    updateStats(latestReal);
 }
 
 function updateStats(current) {
