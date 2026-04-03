@@ -148,7 +148,7 @@ function updateChart() {
 }
 
 function updateStats(current) {
-    document.getElementById('currentPriceCard').querySelector('.value').innerText = `${current.total_ttc.toFixed(2)}€`;
+    document.getElementById('currentPriceCard').querySelector('.value').innerText = `${current.total_ttc.toFixed(3)}€`;
     const taxShare = ((current.ticpe + current.cee + current.tva) / current.total_ttc * 100).toFixed(0);
     document.getElementById('taxShareCard').querySelector('.value').innerText = `${taxShare}%`;
     
