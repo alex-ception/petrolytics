@@ -28,7 +28,7 @@ const FRED_BASE = 'https://api.stlouisfed.org/fred/series/observations';
 const START_DATE = '2000-01-01';
 
 async function fetchSeries(seriesId) {
-    const url = `${FRED_BASE}?series_id=${seriesId}&api_key=${API_KEY}&file_type=json&observation_start=${START_DATE}&frequency=m`;
+    const url = `${FRED_BASE}?series_id=${seriesId}&api_key=${API_KEY}&file_type=json&observation_start=${START_DATE}&frequency=d`;
     const res = await fetch(url);
 
     if (!res.ok) {
@@ -37,12 +37,31 @@ async function fetchSeries(seriesId) {
 
     const json = await res.json();
     const result = {};
-
+    const grouped = {};
     for (const obs of (json.observations || [])) {
         const val = parseFloat(obs.value);
         if (!isNaN(val)) {
-            const [y, m] = obs.date.split('-');
-            result[`${y}-${m}`] = val;
+            const [y, m, d] = obs.date.split('-');
+            const key = `${y}-${m}`;
+            if (!grouped[key]) grouped[key] = [];
+            grouped[key].push(val);
+        }
+    }
+
+    const monthKeys = Object.keys(grouped).sort();
+    if (monthKeys.length === 0) return result;
+
+    for (let i = 0; i < monthKeys.length; i++) {
+        const key = monthKeys[i];
+        const values = grouped[key];
+        
+        // Pour le tout dernier mois (en cours), on prend le dernier prix "Spot" connu
+        if (i === monthKeys.length - 1) {
+            result[key] = values[values.length - 1];
+        } else {
+            // Pour les mois clôturés, on fait la moyenne exacte
+            const sum = values.reduce((a, b) => a + b, 0);
+            result[key] = Number((sum / values.length).toFixed(3));
         }
     }
 
