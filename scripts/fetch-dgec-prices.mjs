@@ -96,7 +96,7 @@ function formatOutput(data, fetchedAt) {
     for (const fuel of Object.keys(data)) {
         lines.push(`    ${fuel}: {`);
         for (const year of Object.keys(data[fuel]).sort((a, b) => Number(a) - Number(b))) {
-            const vals = data[fuel][year].map(v => v === null ? 'null' : v.toFixed(2));
+            const vals = data[fuel][year].map(v => v === null ? 'null' : v.toFixed(3));
             lines.push(`        ${year}: [${vals.join(', ')}],`);
         }
         lines.push(`    },`);
@@ -124,13 +124,22 @@ function updatePointer(snapshotFilename) {
     writeFileSync(POINTER_PATH, content, 'utf-8');
 }
 
-async function fetchFluxAverage(fuelKey, year, month) {
+async function fetchFluxAverage(fuelKey, year, month, isCurrentMonth) {
     const fuelName = FLUX_FUEL_NAME[fuelKey];
     if (!fuelName) return null;
 
-    const dateFrom = `${year}-${String(month).padStart(2, '0')}-01`;
-    const lastDay = new Date(year, month, 0).getDate();
-    const dateTo = `${year}-${String(month).padStart(2, '0')}-${lastDay}`;
+    let dateFrom, dateTo;
+    if (isCurrentMonth) {
+        const today = new Date();
+        const past = new Date(today);
+        past.setDate(today.getDate() - 3);
+        dateFrom = `${past.getFullYear()}-${String(past.getMonth()+1).padStart(2,'0')}-${String(past.getDate()).padStart(2,'0')}`;
+        dateTo = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    } else {
+        dateFrom = `${year}-${String(month).padStart(2, '0')}-01`;
+        const lastDay = new Date(year, month, 0).getDate();
+        dateTo = `${year}-${String(month).padStart(2, '0')}-${lastDay}`;
+    }
 
     const params = new URLSearchParams({
         select: 'avg(prix_valeur) as avg_price',
@@ -143,7 +152,7 @@ async function fetchFluxAverage(fuelKey, year, month) {
         if (!res.ok) return null;
         const json = await res.json();
         const val = json.results?.[0]?.avg_price;
-        return val ? Number(val.toFixed(2)) : null;
+        return val ? Number(val.toFixed(3)) : null;
     } catch {
         return null;
     }
@@ -162,7 +171,8 @@ async function patchRecentMonths(data) {
             if (!data[fuelKey]?.[year]) continue;
             if (data[fuelKey][year][monthIndex] !== null) continue;
 
-            const val = await fetchFluxAverage(fuelKey, year, month);
+            const isCurrentMonth = (i === 0);
+            const val = await fetchFluxAverage(fuelKey, year, month, isCurrentMonth);
             if (val) {
                 data[fuelKey][year][monthIndex] = val;
                 console.log(`   ✅ ${fuelKey} ${year}-${String(month).padStart(2, '0')} : ${val}€ (flux instantané)`);

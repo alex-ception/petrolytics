@@ -88,6 +88,11 @@ function updateChart() {
             trigger: 'axis', axisPointer: { type: 'cross' },
             formatter: (p) => {
                 let res = `<strong>${p[0].name}</strong><br/>`;
+                const raw = fuelData[p[0].dataIndex];
+                if (raw && raw.brentUSD) {
+                    res += `<span style="font-size:0.75rem; color:var(--text-secondary); opacity:0.8;">(Base: Baril Spot ${raw.brentUSD.toFixed(1)}$ / Taux EUR/USD ${raw.ex.toFixed(3)})</span><br/><br/>`;
+                }
+                
                 p.forEach(s => {
                     if (s.seriesName === 'Prix à la Pompe (TTC)' && isPercentageMode) return;
                     res += `${s.marker} ${s.seriesName}: <b>${s.value.toFixed(3)}${isPercentageMode ? '%' : '€'}</b><br/>`;
@@ -138,7 +143,25 @@ function updateStats(current) {
     document.getElementById('currentPriceCard').querySelector('.value').innerText = `${current.total_ttc.toFixed(2)}€`;
     const taxShare = ((current.ticpe + current.cee + current.tva) / current.total_ttc * 100).toFixed(0);
     document.getElementById('taxShareCard').querySelector('.value').innerText = `${taxShare}%`;
-    document.getElementById('marginTrendCard').querySelector('.value').innerText = `${(current.marge_raffinage + current.marge_distribution).toFixed(3)}€`;
+    
+    // Marge brute globale
+    const margeTotale = current.marge_raffinage + current.marge_distribution;
+    const diff = margeTotale - 0.20; // Moyenne de référence 2021 (~0.20€)
+    const sign = diff > 0 ? '+' : '';
+    const color = diff > 0.05 ? '#ef4444' : (diff > 0 ? '#f59e0b' : '#10b981');
+    
+    const marginCard = document.getElementById('marginTrendCard');
+    marginCard.querySelector('.value').innerText = `${margeTotale.toFixed(3)}€`;
+    marginCard.querySelector('.subtext').innerHTML = `Écart moyenne 2021 : <span style="color:${color}; font-weight:600;">${sign}${diff.toFixed(3)}€</span>`;
+    
+    // Warning Raffinage anormal
+    if (current.marge_raffinage > 0.25) {
+        marginCard.style.borderColor = '#ef4444';
+        marginCard.style.boxShadow = '0 0 8px rgba(239, 68, 68, 0.3)';
+    } else {
+        marginCard.style.borderColor = '';
+        marginCard.style.boxShadow = '';
+    }
 }
 
 document.getElementById('themeToggle').addEventListener('click', () => {

@@ -12,9 +12,14 @@ export class MarketDataEnricher {
         const { year, monthIndex } = dataPoint;
         const key = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
         
+        const brentVals = Object.values(brentHistory || {});
+        const exVals = Object.values(exHistory || {});
+        const lastBrent = brentVals.length > 0 ? brentVals[brentVals.length - 1] : 80;
+        const lastEx = exVals.length > 0 ? exVals[exVals.length - 1] : 1.08;
+        
         // On récupère le prix brut ($) et le cours de change (ex: 1.08)
-        const brentUSD = brentHistory?.[key] || 80;
-        const exRate = exHistory?.[key] || 1.08;
+        const brentUSD = brentHistory?.[key] || lastBrent;
+        const exRate = exHistory?.[key] || lastEx;
         
         // Formule de conversion unitaire : 
         // Brent ($/Baril) / Taux ($/€) = Brent (€/Baril)
