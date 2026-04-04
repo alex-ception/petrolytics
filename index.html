@@ -11,8 +11,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <script type="module" crossorigin src="/assets/index-CJeMo6jN.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-Bg_IjOPE.css">
+  <script type="module" crossorigin src="/assets/index-CyE3QUIT.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-aYVcGW_7.css">
 </head>
 
 <body data-theme="light">
@@ -62,8 +62,12 @@
             <div class="stat-card" id="marginTrendCard">
                 <div class="label">Marge nette (R+D)</div>
                 <div class="value">--€</div>
-                <div class="subtext" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                </div>
+                <div class="subtext"></div>
+            </div>
+            <div class="stat-card" id="trendFocusCard">
+                <div class="label">Tendance Flash (30j)</div>
+                <div id="sparklineChart" style="height: 40px; margin-top: 0.5rem;"></div>
+                <div class="variation-stats"></div>
             </div>
         </div>
 
@@ -79,18 +83,25 @@
             </div>
 
             <div class="methodology-disclaimer">
-                <strong>💡 Note de méthodologie :</strong> Les marges nettes (Raffinage et Vente) sont calculées par
-                **méthode résiduelle** en déduisant les coûts fixes (Prix du brut estimé via Brent, TICPE, CEE et TVA)
-                du prix de vente final (INSEE/DGEC). La répartition historique (55% / 45%) est une approximation.
+                <strong>💡 Source & Fiabilité des données :</strong>
+                <p>Le prix TTC final à la pompe est une <strong>agrégation nationale</strong> provenant de deux sources complémentaires :
+                les index mensuels certifiés de l'<strong>INSEE</strong> (moyenne de l'ensemble des points de vente en France métropolitaine) et le flux quotidien de la <strong>DGEC (DG Énergie et Climat)</strong>. 
+                Pour le mois en cours, le système calcule une moyenne glissante à partir des 10 000+ stations-service répertoriées sur <strong>prix-carburants.gouv.fr</strong>, offrant ainsi une vision précise de la dynamique du marché national sous 24-48h.</p>
+                
+                <p>Le prix du brut est synchronisé avec le cours du <strong>Brent</strong> via la <strong>FRED</strong> (Federal Reserve), converti au taux <strong>Forex EUR/USD</strong> du jour.</p>
+
+                <strong>🔍 Méthode de calcul :</strong>
+                Les marges nettes (Raffinage et Vente) sont calculées par
+                <strong>méthode résiduelle</strong> en déduisant les coûts fixes (Brut estimé, TICPE, CEE et TVA)
+                du prix TTC constaté. La répartition historique Raffinage (55%) / Distribution (45%) est une convention analytique basée sur les rapports du CPDP.
                 <br><br>
                 <em style="opacity: 0.9; font-size: 0.8rem;">⚠️ À noter : Ces "marges" englobent encore plusieurs coûts
-                    incompressibles qui ne sont pas du profit net pour le distributeur :
-                    la <strong>CPSSP</strong> (Comité Professionnel des Stocks Stratégiques Pétroliers),
-                    les taxes de <strong>Passage en Dépôt</strong>, et les <strong>Frais de Transport /
-                        Logistique</strong> (Pipelines type TRAPIL ou camions citernes entre la raffinerie et la
-                    station).
-                    <span style="color: #fb923c;">Aucune donnée Open Data publique et exploitable n'existe à ce jour
-                        pour isoler ces coûts avec précision.</span></em>
+                    incompressibles :
+                    la <strong>CPSSP</strong> (Stocks Stratégiques),
+                    le <strong>Passage en Dépôt</strong>, et les <strong>Frais de Transport /
+                        Logistique</strong> (Pipelines ou camions citernes).
+                    <span style="color: #fb923c;">Aucune donnée publique n'existe à ce jour
+                        pour isoler ces frais d'acheminement avec précision.</span></em>
             </div>
         </div>
 
