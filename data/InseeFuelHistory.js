@@ -4,5 +4,6 @@
 // Versions disponibles dans data/sources/ :
 //   InseeFuelHistory.2000-01-01.js
 //   InseeFuelHistory.2026-04-03.js
+//   InseeFuelHistory.2026-04-04.js
 
-export { FUEL_PRICE_HISTORY } from './sources/InseeFuelHistory.2026-04-03.js';
+export { FUEL_PRICE_HISTORY } from './sources/InseeFuelHistory.2026-04-04.js';
