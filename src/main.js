@@ -1,17 +1,25 @@
 import * as echarts from 'echarts';
-import { data } from './data.js';
+import { data, metadata } from './data.js';
 import { HISTORICAL_EVENTS } from '../data/HistoricalEvents.js';
 import { RETAILER_PROFILES } from '../data/RetailerProfiles.js';
 
 let chart = null;
+let sparkline = null;
 let currentFuelType = 'Gazole';
 let currentRetailer = 'National';
 let isPercentageMode = false;
 
 function initChart() {
     const chartDom = document.getElementById('mainChart');
+    const sparkDom = document.getElementById('sparklineChart');
+    
     if (chart) chart.dispose();
-    chart = echarts.init(chartDom, document.body.getAttribute('data-theme'));
+    if (sparkline) sparkline.dispose();
+
+    const theme = document.body.getAttribute('data-theme');
+    chart = echarts.init(chartDom, theme);
+    sparkline = echarts.init(sparkDom, theme);
+
     populateSidebar();
     updateChart();
 }
@@ -139,28 +147,59 @@ function updateChart() {
     
     // Les encarts statistiques du haut DOIVENT toujours rester en mode Euros (€), même quand le graphique passe en "%"
     const latestRaw = data[data.length - 1][currentFuelType];
+    const prevDayRaw = data[data.length - 2] ? data[data.length - 2][currentFuelType] : latestRaw;
+    const prev7DaysRaw = data[data.length - 8] ? data[data.length - 8][currentFuelType] : (data[0][currentFuelType] || latestRaw);
+
     const latestReal = {
         ...latestRaw,
         total_ttc: latestRaw.total_ttc + profile.priceDelta,
+        marge_raffinage: Math.max(0.01, latestRaw.marge_raffinage + profile.marginDelta),
         marge_distribution: Math.max(0.01, latestRaw.marge_distribution + profile.marginDelta)
     };
-    updateStats(latestReal);
+
+    const comparisons = {
+        yesterday: prevDayRaw.total_ttc + profile.priceDelta,
+        sevenDays: prev7DaysRaw.total_ttc + profile.priceDelta
+    };
+    updateStats(latestReal, comparisons);
 }
 
-function updateStats(current) {
-    document.getElementById('currentPriceCard').querySelector('.value').innerText = `${current.total_ttc.toFixed(3)}€`;
+function updateStats(current, comparisons) {
+    const priceCard = document.getElementById('currentPriceCard');
+    const prevPrice = comparisons.yesterday;
+    priceCard.querySelector('.value').innerText = `${current.total_ttc.toFixed(3)}€`;
+    
+    // Add or Update comparison sub-row
+    let compRow = priceCard.querySelector('.comparison-row');
+    if (!compRow) {
+        compRow = document.createElement('div');
+        compRow.className = 'comparison-row';
+        priceCard.appendChild(compRow);
+    }
+    compRow.innerHTML = `
+        <div class="comp-item"><span>Veille:</span> <strong>${comparisons.yesterday.toFixed(3)}€</strong></div>
+        <div class="comp-item"><span>7j:</span> <strong>${comparisons.sevenDays.toFixed(3)}€</strong></div>
+    `;
+
     const taxShare = ((current.ticpe + current.cee + current.tva) / current.total_ttc * 100).toFixed(0);
     document.getElementById('taxShareCard').querySelector('.value').innerText = `${taxShare}%`;
     
     // Marge brute globale
     const margeTotale = current.marge_raffinage + current.marge_distribution;
-    const diff = margeTotale - 0.20; // Moyenne de référence 2021 (~0.20€)
-    const sign = diff > 0 ? '+' : '';
-    const color = diff > 0.05 ? '#ef4444' : (diff > 0 ? '#f59e0b' : '#10b981');
+    const marginDiff = margeTotale - 0.20; // Moyenne de référence 2021 (~0.20€)
+    const sign = marginDiff > 0 ? '+' : '';
+    const color = marginDiff > 0.05 ? '#ef4444' : (marginDiff > 0 ? '#f59e0b' : '#10b981');
     
     const marginCard = document.getElementById('marginTrendCard');
-    marginCard.querySelector('.value').innerText = `${margeTotale.toFixed(3)}€`;
-    marginCard.querySelector('.subtext').innerHTML = `Écart moyenne 2021 : <span style="color:${color}; font-weight:600;">${sign}${diff.toFixed(3)}€</span>`;
+    if (marginCard) {
+        const valEl = marginCard.querySelector('.value');
+        if (valEl) valEl.innerText = `${margeTotale.toFixed(3)}€`;
+        
+        const subtext = marginCard.querySelector('.subtext');
+        if (subtext) {
+            subtext.innerHTML = `Écart moyenne 2021 : <span style="color:${color}; font-weight:600;">${sign}${marginDiff.toFixed(3)}€</span>`;
+        }
+    }
     
     // Warning Raffinage anormal
     if (current.marge_raffinage > 0.25) {
@@ -169,6 +208,55 @@ function updateStats(current) {
     } else {
         marginCard.style.borderColor = '';
         marginCard.style.boxShadow = '';
+    }
+
+    updateSparkline(current, comparisons);
+}
+
+function updateSparkline(current, comparisons) {
+    const last30 = data.slice(-30);
+    const profile = RETAILER_PROFILES[currentRetailer];
+    
+    // Calcul de la série TTC brute 30j
+    const seriesData = last30.map(d => {
+        const raw = d[currentFuelType];
+        return raw ? (raw.total_ttc + profile.priceDelta) : null;
+    });
+
+    const d1 = current.total_ttc - comparisons.yesterday;
+    const d7 = current.total_ttc - comparisons.sevenDays;
+
+    const getBadge = (val, label) => {
+        const cls = val > 0.001 ? 'up' : (val < -0.001 ? 'down' : '');
+        const sign = val > 0 ? '+' : '';
+        const icon = val > 0.001 ? '▲' : (val < -0.001 ? '▼' : '−');
+        return `<div class="var-badge ${cls}">${label} ${icon} ${sign}${val.toFixed(3)}€</div>`;
+    };
+
+    const card = document.getElementById('trendFocusCard');
+    if (card) {
+        card.querySelector('.variation-stats').innerHTML = getBadge(d1, '24h') + getBadge(d7, '7j');
+    }
+
+    if (sparkline) {
+        sparkline.setOption({
+            grid: { left: 0, right: 0, top: 4, bottom: 4 },
+            xAxis: { type: 'category', show: false },
+            yAxis: { type: 'value', show: false, min: 'dataMin', max: 'dataMax' },
+            series: [{
+                data: seriesData,
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                lineStyle: { width: 2, color: '#3b82f6' },
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: 'rgba(59, 130, 246, 0.2)' },
+                        { offset: 1, color: 'rgba(59, 130, 246, 0)' }
+                    ])
+                }
+            }]
+        });
     }
 }
 
@@ -202,5 +290,16 @@ document.getElementById('retailerSwitcher').addEventListener('click', (e) => {
 });
 
 window.addEventListener('resize', () => { if (chart) chart.resize(); });
+
+if (metadata && metadata.generated_at) {
+    const d = new Date(metadata.generated_at);
+    const dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const footer = document.querySelector('.footer-links span');
+    if (footer) {
+        footer.innerText = `🔄 Données mises à jour le ${dateStr} à ${timeStr}`;
+    }
+}
+
 initChart();
 

@@ -37,7 +37,9 @@ async function generateDataSet() {
             dataSet.push(dataPoint);
         }
     }
-    return dataSet;
+    return { dataSet, metadata: markets.metadata };
 }
 
-export const data = await generateDataSet();
+const result = await generateDataSet();
+export const data = result.dataSet;
+export const metadata = result.metadata;

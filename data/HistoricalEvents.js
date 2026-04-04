@@ -12,6 +12,12 @@ export const HISTORICAL_EVENTS = [
         desc: 'Hausse de la TICPE (composante carbone) qui a déclenché le mouvement des Gilets Jaunes.'
     },
     {
+        date: 'Fév 2022',
+        markerLabel: 'Ukraine ⚔️',
+        title: 'Invasion Ukraine ⚔️',
+        desc: 'Choc énergétique mondial. Le Brent frôle les 140$, provoquant l\'instabilité actuelle des prix.'
+    },
+    {
         date: 'Avr 2022',
         markerLabel: 'Remise 18c ⛽',
         title: 'Remise État 18c ⛽',

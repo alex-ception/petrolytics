@@ -21,9 +21,11 @@ export class FuelDataRepository {
      * Helper pour pré-charger tous les marchés nécessaires au calcul.
      */
     static async fetchMarkets() {
+        const snapshot = await MarketPriceRepository._loadSnapshot();
         return {
             brentHistory: await MarketPriceRepository.getBrentHistory(),
-            exHistory: await MarketPriceRepository.getExchangeRateHistory()
+            exHistory: await MarketPriceRepository.getExchangeRateHistory(),
+            metadata: snapshot ? { generated_at: snapshot.generated_at } : null
         };
     }
 }
