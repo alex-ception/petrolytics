@@ -5,7 +5,7 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: '0 3 * * *' # Tous les jours à 3h00 UTC (4h00/5h00 heure française)
+    - cron: '37 3 * * *' # Tous les jours à 3h37 UTC (5h37/6h37 heure française)
 
 permissions:
   contents: write
